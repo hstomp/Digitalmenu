@@ -732,9 +732,9 @@
 // ---------- versie ----------
 // Verhoog dit nummer (en de datum) bij elke wijziging aan dit bestand, zodat altijd
 // duidelijk is welke versie er precies draait / gedeeld is.
-const APP_VERSION = '1.7.0';
+const APP_VERSION = '1.7.1';
 const APP_VERSION_DATE = '2026-10-29';
-const APP_VERSION_NOTE = 'Foto per menu-item: uploaden in Winkel-tab (opgeslagen in Supabase Storage), zichtbaar en uitvergroot te bekijken voor klanten; Excel-import leest ook een foto-kolom met link.';
+const APP_VERSION_NOTE = 'Duidelijke melding bij spam-limiet (max 5 bestellingen per telefoonnummer per 15 min, max 100 per winkel per uur).';
 document.addEventListener('DOMContentLoaded', ()=>{
   const el = document.getElementById('app-version');
   if(el) el.textContent = `Digital Menu Maker · v${APP_VERSION} · ${APP_VERSION_DATE}`;
@@ -2065,6 +2065,8 @@ document.getElementById('btn-order').addEventListener('click', async ()=>{
 
 function orderErrorText(err){
   const m = (err && (err.message || '')) + '';
+  if(m.includes('TE_VEEL_TEL')) return 'Je hebt net al een paar keer besteld — wacht een kwartiertje of bel/WhatsApp de winkel';
+  if(m.includes('TE_VEEL_WINKEL')) return 'De winkel krijgt nu heel veel bestellingen — probeer het over een uurtje opnieuw of WhatsApp de winkel';
   if(m.includes('MENU_GESLOTEN')) return 'Het menu van vandaag is gesloten';
   if(m.includes('NIET_BESCHIKBAAR')){ const n = m.split('NIET_BESCHIKBAAR:')[1] || ''; return `"${n.trim()}" is niet meer beschikbaar`; }
   if(m.includes('VOORRAAD')){ const parts = (m.split('VOORRAAD:')[1] || '').split(':'); return `Onvoldoende voorraad van "${parts[0]}" (nog ${parts[1]||0} over)`; }
