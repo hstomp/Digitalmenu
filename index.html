@@ -716,9 +716,9 @@
 // ---------- versie ----------
 // Verhoog dit nummer (en de datum) bij elke wijziging aan dit bestand, zodat altijd
 // duidelijk is welke versie er precies draait / gedeeld is.
-const APP_VERSION = '1.5.1';
+const APP_VERSION = '1.6.0';
 const APP_VERSION_DATE = '2026-10-29';
-const APP_VERSION_NOTE = 'Fix: bestelling met voorraad-items blokkeerde de WhatsApp-knop. Dagmenu (menu van vandaag plaatsen, automatisch dicht op een nieuwe dag), bestelling doorsturen via WhatsApp, menu delen via WhatsApp, afhalen/bezorgen + tijd + opmerking';
+const APP_VERSION_NOTE = 'Beveiliging: bestellingen en tegoed in eigen tabellen; prijs, voorraad, dagmenu en tegoed worden op de server gecontroleerd (place_order). Klanten zien alleen hun eigen bestellingen.';
 document.addEventListener('DOMContentLoaded', ()=>{
   const el = document.getElementById('app-version');
   if(el) el.textContent = `Digital Menu Maker · v${APP_VERSION} · ${APP_VERSION_DATE}`;
@@ -847,25 +847,55 @@ async function setData(name, value){
   if(error) throw error;
 }
 async function saveMenu(){ await setData('menu-items', menuItems); }
-async function saveOrders(){ await setData('orders', orders); }
-async function saveCredit(){ await setData('credit-balances', creditBalances); }
+function mapOrderRow(r){
+  return {
+    id: r.id,
+    customer: r.customer || '',
+    phone: r.phone || '',
+    items: r.items || [],
+    total: Number(r.total) || 0,
+    payment: r.payment || '',
+    fulfil: r.fulfil || 'Afhalen',
+    address: r.address || '',
+    time: r.pickup_time || '',
+    note: r.note || '',
+    status: r.status || 'Nieuw',
+    timestamp: Date.parse(r.created_at) || Date.now()
+  };
+}
+async function loadOrders(){
+  const { data, error } = await sb.from('orders').select('*').eq('store_id', storeId).order('created_at', { ascending: true }).limit(1000);
+  if(error) throw error;
+  orders = (data || []).map(mapOrderRow);
+}
+async function loadCredits(){
+  const { data, error } = await sb.from('credits').select('phone,name,balance').eq('store_id', storeId);
+  if(error) throw error;
+  creditBalances = {};
+  (data || []).forEach(r=>{ creditBalances[r.phone] = { name: r.name || '', balance: Number(r.balance) || 0 }; });
+}
 async function savePurchases(){ await setData('purchases', purchases); }
 async function saveSettings(){ await setData('settings', settings); }
 
 async function loadTenantData(){
-  const [m,o,c,p,st] = await Promise.all([
+  const isOwner = appMode === 'owner';
+  const [m,p,st] = await Promise.all([
     getData('menu-items').catch(()=>null),
-    getData('orders').catch(()=>null),
-    getData('credit-balances').catch(()=>null),
-    getData('purchases').catch(()=>null),
+    isOwner ? getData('purchases').catch(()=>null) : Promise.resolve(null),
     getData('settings').catch(()=>null),
   ]);
+  orders = [];
+  creditBalances = {};
+  if(isOwner){
+    await Promise.all([
+      loadOrders().catch(err=>{ console.error('Bestellingen laden mislukt', err); }),
+      loadCredits().catch(err=>{ console.error('Tegoed laden mislukt', err); }),
+    ]);
+  }
   settings = Object.assign({ dailyReset: true, menuDate: '' }, st || {});
   // bestaande winkels zonder instellingen: niet ineens het menu dichtzetten
   if(!st){ settings.dailyReset = false; }
   menuItems = m || [];
-  orders = o || [];
-  creditBalances = c || {};
   purchases = p || [];
 }
 
@@ -1625,10 +1655,15 @@ document.getElementById('orders-list').addEventListener('change', async (e)=>{
     const id = e.target.dataset.id;
     const o = orders.find(x=>x.id===id);
     if(o){
+      const prev = o.status;
       o.status = e.target.value;
-      await saveOrders();
+      const { error } = await sb.from('orders').update({ status: o.status }).eq('id', id);
+      if(error){
+        console.error(error);
+        o.status = prev;
+        showToast('Status opslaan mislukt');
+      }
       renderOrdersList();
-      renderMyOrders();
     }
   }
 });
@@ -1683,11 +1718,18 @@ document.getElementById('btn-topup').addEventListener('click', async ()=>{
     showToast('Vul een geldig bedrag in (of laat op 0 om alleen bij te werken)');
     return;
   }
+  // actuele stand ophalen (kan intussen door een bestelling met tegoed veranderd zijn)
+  try{ await loadCredits(); }catch(err){ console.error(err); }
   const existing = creditBalances[tel] || { name: naam, balance: 0 };
   existing.name = naam || existing.name;
-  existing.balance = existing.balance + bedrag;
+  existing.balance = Math.round((existing.balance + bedrag) * 100) / 100;
+  const { error } = await sb.from('credits').upsert({ store_id: storeId, phone: tel, name: existing.name, balance: existing.balance, updated_at: new Date().toISOString() });
+  if(error){
+    console.error(error);
+    showToast('Opslaan mislukt — probeer opnieuw');
+    return;
+  }
   creditBalances[tel] = existing;
-  await saveCredit();
   document.getElementById('c-naam').value='';
   document.getElementById('c-tel').value='';
   document.getElementById('c-bedrag').value='';
@@ -1772,14 +1814,37 @@ function renderCart(){
   const note = document.getElementById('credit-balance-note');
   if(selectedPayment === 'Credit'){
     const tel = normPhone(document.getElementById('k-tel').value);
-    const entry = tel ? creditBalances[tel] : null;
     note.style.display = 'block';
-    note.textContent = tel
-      ? (entry ? `Beschikbaar tegoed: ${money(entry.balance)}` : 'Geen tegoed bekend voor dit telefoonnummer — vraag de winkel om op te waarderen.')
-      : 'Vul je telefoonnummer in om je tegoed te zien.';
+    if(!tel){
+      note.textContent = 'Vul je telefoonnummer in om je tegoed te zien.';
+    } else if(creditLookup.phone === tel && creditLookup.done){
+      note.textContent = creditLookup.balance === null
+        ? 'Geen tegoed bekend voor dit telefoonnummer — vraag de winkel om op te waarderen.'
+        : `Beschikbaar tegoed: ${money(creditLookup.balance)}`;
+    } else {
+      note.textContent = 'Tegoed opzoeken…';
+      scheduleCreditLookup(tel);
+    }
   } else {
     note.style.display = 'none';
   }
+}
+
+let creditLookup = { phone: '', balance: null, done: false };
+let creditLookupTimer = null;
+function scheduleCreditLookup(tel){
+  clearTimeout(creditLookupTimer);
+  creditLookupTimer = setTimeout(async ()=>{
+    try{
+      const { data, error } = await sb.rpc('get_credit', { p_store_id: storeId, p_phone: tel });
+      if(error) throw error;
+      creditLookup = { phone: tel, balance: data === null ? null : Number(data), done: true };
+    }catch(err){
+      console.error(err);
+      creditLookup = { phone: tel, balance: null, done: true };
+    }
+    if(normPhone(document.getElementById('k-tel').value) === tel) renderCart();
+  }, 500);
 }
 
 document.getElementById('payment-select').addEventListener('click', (e)=>{
@@ -1831,70 +1896,60 @@ document.getElementById('btn-order').addEventListener('click', async ()=>{
     showToast('Vul je bezorgadres in');
     return;
   }
-  const total = cartTotal();
-  if(selectedPayment === 'Credit'){
-    const entry = creditBalances[tel];
-    const balance = entry ? entry.balance : 0;
-    if(balance < total){
-      showToast(`Onvoldoende tegoed (${money(balance)} beschikbaar)`);
-      return;
-    }
+  const btnOrder = document.getElementById('btn-order');
+  btnOrder.disabled = true;
+  btnOrder.textContent = 'Bezig…';
+  let result;
+  try{
+    const { data, error } = await sb.rpc('place_order', {
+      p_store_id: storeId,
+      p_customer: naam,
+      p_phone: tel,
+      p_items: Object.entries(cart).map(([itemId, qty])=>({ itemId, qty })),
+      p_payment: selectedPayment,
+      p_fulfil: selectedFulfil,
+      p_address: selectedFulfil === 'Bezorgen' ? adres : '',
+      p_time: tijd,
+      p_note: opmerking
+    });
+    if(error) throw error;
+    result = data;
+  }catch(err){
+    console.error(err);
+    showToast(orderErrorText(err));
+    // menu opnieuw ophalen: voorraad of beschikbaarheid kan veranderd zijn
+    try{ menuItems = (await getData('menu-items')) || menuItems; settings = Object.assign(settings, (await getData('settings')) || {}); }catch(e){}
+    renderKlantItems();
+    renderCart();
+    return;
+  }finally{
+    btnOrder.disabled = false;
+    btnOrder.textContent = 'Bestelling plaatsen';
   }
-
-  // voorraad controleren vlak voor bestellen (kan intussen gewijzigd zijn)
-  for(const [cid, cqty] of Object.entries(cart)){
-    const citem = menuItems.find(i=>i.id===cid);
-    if(citem && citem.stock !== null && citem.stock !== undefined && cqty > citem.stock){
-      showToast(`Onvoldoende voorraad van "${citem.name}" (nog ${citem.stock} over)`);
-      return;
-    }
-  }
-
-  const items = Object.entries(cart).map(([id,qty])=>{
-    const item = menuItems.find(i=>i.id===id);
-    return { itemId: id, name: item.name, price: item.price, qty };
-  });
 
   const order = {
-    id: uid(),
+    id: result.id,
     customer: naam,
     phone: tel,
-    items,
-    total,
+    items: result.items || [],
+    total: Number(result.total) || 0,
     payment: selectedPayment,
     fulfil: selectedFulfil,
     address: selectedFulfil === 'Bezorgen' ? adres : '',
     time: tijd,
     note: opmerking,
     status: 'Nieuw',
-    timestamp: Date.now()
+    timestamp: Date.parse(result.created_at) || Date.now()
   };
+  rememberMyOrder(order.id);
+  creditLookup.done = false;
 
-  orders.push(order);
-  await saveOrders();
-
-  // voorraad verlagen voor items die worden bijgehouden
-  let stockChanged = false;
-  items.forEach(oi=>{
-    const item = menuItems.find(i=>i.id===oi.itemId);
-    if(item && item.stock !== null && item.stock !== undefined){
-      item.stock = Math.max(0, item.stock - oi.qty);
-      item.available = item.stock > 0;
-      stockChanged = true;
-    }
-  });
-  if(stockChanged){
-    // klanten mogen het menu niet wijzigen (beveiliging) — mislukt dit, dan gaat de bestelling gewoon door
-    try{ await saveMenu(); }catch(err){ console.warn('Voorraad bijwerken niet toegestaan vanaf klantlink', err); }
+  // actuele voorraad ophalen na de bestelling
+  try{ menuItems = (await getData('menu-items')) || menuItems; }catch(e){}
+  if(appMode === 'owner'){
+    try{ await Promise.all([loadOrders(), loadCredits()]); }catch(e){}
     renderItemsList();
-  }
-
-  if(selectedPayment === 'Credit'){
-    const entry = creditBalances[tel] || { name: naam, balance: 0 };
-    entry.balance -= total;
-    entry.name = entry.name || naam;
-    creditBalances[tel] = entry;
-    await saveCredit();
+    renderOrdersList();
     renderCreditTable();
   }
 
@@ -1910,6 +1965,29 @@ document.getElementById('btn-order').addEventListener('click', async ()=>{
   renderMyOrders();
   showOrderDone(order);
 });
+
+function orderErrorText(err){
+  const m = (err && (err.message || '')) + '';
+  if(m.includes('MENU_GESLOTEN')) return 'Het menu van vandaag is gesloten';
+  if(m.includes('NIET_BESCHIKBAAR')){ const n = m.split('NIET_BESCHIKBAAR:')[1] || ''; return `"${n.trim()}" is niet meer beschikbaar`; }
+  if(m.includes('VOORRAAD')){ const parts = (m.split('VOORRAAD:')[1] || '').split(':'); return `Onvoldoende voorraad van "${parts[0]}" (nog ${parts[1]||0} over)`; }
+  if(m.includes('TEGOED')){ const b = parseFloat((m.split('TEGOED:')[1]||'0')) || 0; return `Onvoldoende tegoed (${money(b)} beschikbaar)`; }
+  if(m.includes('ITEM_ONBEKEND')) return 'Een item uit je mandje bestaat niet meer — ververs de pagina';
+  if(m.includes('ADRES_VERPLICHT')) return 'Vul je bezorgadres in';
+  if(m.includes('NAAM_TEL_VERPLICHT')) return 'Vul je naam en telefoonnummer in';
+  if(m.includes('MENU_LEEG')) return 'Deze winkel heeft nog geen menu';
+  return 'Bestellen mislukt — controleer je internet en probeer opnieuw';
+}
+
+function myOrdersKey(){ return 'dmm-mijn-bestellingen-' + storeId; }
+function getMyOrderIds(){
+  try{ const v = JSON.parse(lsGet(myOrdersKey()) || '[]'); return Array.isArray(v) ? v : []; }catch(e){ return []; }
+}
+function rememberMyOrder(id){
+  const ids = getMyOrderIds().filter(x=>x!==id);
+  ids.unshift(id);
+  lsSet(myOrdersKey(), JSON.stringify(ids.slice(0,30)));
+}
 
 function orderWhatsAppText(o){
   let t = `*Nieuwe bestelling* 🛒\n`;
@@ -1947,38 +2025,47 @@ document.getElementById('btn-order-done-close').addEventListener('click', ()=>{
 });
 
 // ---------- KLANT: mijn bestellingen ----------
-function renderMyOrders(){
+async function renderMyOrders(){
   const wrap = document.getElementById('my-orders');
-  const tel = normPhone(document.getElementById('k-tel').value);
-  if(!tel){
-    wrap.innerHTML = '<div class="empty">Vul je telefoonnummer in om je bestellingen te zien.</div>';
+  if(!wrap || !storeId) return;
+  const ids = getMyOrderIds();
+  if(ids.length === 0){
+    wrap.innerHTML = '<div class="empty">Je hebt op dit toestel nog geen bestellingen geplaatst.</div>';
     return;
   }
-  const mine = orders.filter(o=>normPhone(o.phone) === tel);
-  if(mine.length === 0){
-    wrap.innerHTML = '<div class="empty">Je hebt nog geen bestellingen geplaatst.</div>';
+  let rows = [];
+  try{
+    const { data, error } = await sb.rpc('order_status', { p_ids: ids });
+    if(error) throw error;
+    rows = data || [];
+  }catch(err){
+    console.error(err);
+    wrap.innerHTML = '<div class="empty">Kon je bestellingen niet laden.</div>';
+    return;
+  }
+  if(rows.length === 0){
+    wrap.innerHTML = '<div class="empty">Je hebt op dit toestel nog geen bestellingen geplaatst.</div>';
     return;
   }
   wrap.innerHTML = '';
-  [...mine].reverse().forEach(o=>{
+  rows.forEach(o=>{
     const el = document.createElement('div');
     el.className = 'card order-card status-' + o.status;
-    const itemsStr = o.items.map(it=>`${it.qty}× ${escapeHtml(it.name)}`).join(', ');
+    const itemsStr = (o.items||[]).map(it=>`${it.qty}× ${escapeHtml(it.name)}`).join(', ');
     el.innerHTML = `
       <div class="order-head">
-        <strong>${o.status}</strong>
-        <span class="muted">${new Date(o.timestamp).toLocaleString('nl-NL')}</span>
+        <strong>${escapeHtml(o.status)}</strong>
+        <span class="muted">${new Date(o.created_at).toLocaleString('nl-NL')}</span>
       </div>
       <div class="order-items">${itemsStr}</div>
       <div class="row" style="justify-content:space-between;">
-        <span class="muted">Betaling: ${escapeHtml(o.payment)}</span>
+        <span class="muted">${escapeHtml(o.fulfil||'')}${o.pickup_time ? ' · ' + escapeHtml(o.pickup_time) : ''} · betaling: ${escapeHtml(o.payment)}</span>
         <strong>${money(o.total)}</strong>
       </div>
     `;
     wrap.appendChild(el);
   });
 }
-document.getElementById('k-tel').addEventListener('change', renderMyOrders);
 
 // ---------- DASHBOARD ----------
 function renderDashboard(){
@@ -2036,6 +2123,17 @@ function escapeHtml(str){
   div.textContent = str == null ? '' : str;
   return div.innerHTML;
 }
+
+// eigenaar: nieuwe bestellingen automatisch binnenhalen
+setInterval(async ()=>{
+  if(appMode !== 'owner' || !storeId || document.hidden) return;
+  const before = orders.length;
+  try{ await loadOrders(); }catch(e){ return; }
+  if(orders.length !== before){
+    renderOrdersList();
+    if(orders.length > before) showToast('Nieuwe bestelling binnen!');
+  }
+}, 30000);
 
 init();
 </script>
