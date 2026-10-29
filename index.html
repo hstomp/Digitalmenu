@@ -41,13 +41,9 @@
     border-radius:3px 3px 0 0;
   }
   header{
-    background-color:var(--kaya-blue);
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
+    background:var(--kaya-blue);
     color:var(--paper);
     padding-top:22px;
-    transition:background-color .2s;
   }
   header .inner{
     max-width:880px;
@@ -59,13 +55,11 @@
     font-size:2rem;
     margin:6px 0 2px;
     letter-spacing:0.3px;
-    text-shadow:0 1px 6px rgba(0,0,0,0.35);
   }
   header p{
     margin:0;
     color:#CFE0EA;
     font-size:0.95rem;
-    text-shadow:0 1px 4px rgba(0,0,0,0.35);
   }
   nav.tabs{
     max-width:880px;
@@ -282,43 +276,6 @@
     z-index:50;
   }
   .toast.show{opacity:1;}
-  .daily-bar{
-    background:var(--card);
-    border:2px solid var(--punda-yellow);
-    border-radius:12px;
-    padding:14px 16px;
-    margin-bottom:12px;
-  }
-  .daily-bar.live{border-color:var(--sea-green);}
-  .daily-status{font-weight:700;font-size:1rem;margin-bottom:4px;}
-  .daily-bar.live .daily-status{color:var(--sea-green);}
-  .daily-bar:not(.live) .daily-status{color:#A7741A;}
-  button.whatsapp{
-    background:#25D366;
-    color:#fff;
-    border:none;
-    padding:12px 18px;
-    border-radius:8px;
-    font-weight:700;
-    cursor:pointer;
-    font-size:0.95rem;
-  }
-  button.whatsapp:hover{filter:brightness(1.05);}
-  .order-done{
-    border:2px solid #25D366;
-    text-align:center;
-  }
-  .order-done h3{margin:4px 0 6px;color:var(--sea-green);font-family:Georgia,serif;}
-  textarea{
-    width:100%;
-    padding:9px 10px;
-    border:1px solid var(--line);
-    border-radius:8px;
-    font-size:0.95rem;
-    font-family:inherit;
-    resize:vertical;
-    min-height:54px;
-  }
 </style>
 </head>
 <body>
@@ -433,7 +390,7 @@
             </div>
             <div class="field">
               <label for="s-tel">Telefoon</label>
-              <input type="tel" id="s-tel" placeholder="WhatsApp-nummer, bv. 5123456">
+              <input type="tel" id="s-tel" placeholder="Telefoonnummer winkel">
             </div>
           </div>
         </div>
@@ -462,21 +419,6 @@
         <div class="field" style="max-width:160px;">
           <label for="s-bgcolor">Achtergrondkleur</label>
           <input type="color" id="s-bgcolor">
-        </div>
-      </div>
-      <div class="row" style="margin-top:10px;align-items:flex-start;">
-        <div style="flex:0 0 auto;">
-          <label>Header-achtergrond</label>
-          <div id="header-bg-preview-wrap" style="width:160px;height:70px;border-radius:12px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--kaya-blue);">
-            <span class="muted" id="header-bg-placeholder" style="font-size:0.68rem;text-align:center;color:#CFE0EA;padding:0 6px;">Standaard blauw</span>
-            <img id="header-bg-preview" style="display:none;width:100%;height:100%;object-fit:cover;">
-          </div>
-          <div class="row" style="margin-top:6px;gap:6px;">
-            <label class="secondary" for="s-header-bg-input" style="border:1px solid var(--line);padding:6px 10px;border-radius:8px;cursor:pointer;font-size:0.78rem;background:#fff;">Kies bestand</label>
-            <button class="danger" id="btn-remove-header-bg" type="button">Verwijder</button>
-          </div>
-          <input type="file" id="s-header-bg-input" accept="image/*" style="display:none;">
-          <p class="muted" style="margin:6px 0 0;max-width:220px;">Optioneel: vervang de blauwe header bovenaan door je eigen afbeelding. Alleen zichtbaar voor jouw winkel.</p>
         </div>
       </div>
       <div class="row" style="margin-top:12px;">
@@ -535,34 +477,19 @@
       <div class="row" style="margin-top:12px;">
         <button class="primary" id="btn-add-item">Item toevoegen</button>
       </div>
-      <p class="muted" style="margin:10px 0 0;">Voorraadaantal stel je hieronder per item in — laat leeg voor onbeperkt (dan werkt de "Beschikbaar"-schakelaar zoals voorheen).</p>
     </div>
 
     <div class="card">
       <label for="excel-input">Menu importeren uit Excel</label>
-      <p class="muted" style="margin:0 0 10px;">Herkent kolommen zoals <strong>naam</strong>/eten/gerecht, <strong>categorie</strong>/soort/type en <strong>prijs</strong>/bedrag — ongeacht hoofdletters. Geïmporteerde items staan standaard op niet-beschikbaar — vink hieronder aan wat vandaag te koop is.</p>
+      <p class="muted" style="margin:0 0 10px;">Herkent kolommen zoals <strong>naam</strong>/eten/gerecht, <strong>categorie</strong>/soort/type en <strong>prijs</strong>/bedrag — ongeacht hoofdletters. Geïmporteerde items staan standaard op niet-beschikbaar — vink hieronder aan wat deze week te koop is.</p>
       <div class="row">
         <input type="file" id="excel-input" accept=".xlsx,.xls,.csv" style="flex:1;">
         <button class="secondary" id="btn-import-excel">Importeren</button>
       </div>
     </div>
 
-    <h2>Menu van vandaag</h2>
-    <div class="daily-bar" id="daily-bar">
-      <div class="daily-status" id="daily-status">…</div>
-      <p class="muted" id="daily-sub" style="margin:0 0 12px;"></p>
-      <div class="row" style="gap:8px;">
-        <button class="primary" id="btn-publish-today">Menu van vandaag plaatsen</button>
-        <button class="whatsapp" id="btn-share-menu" type="button">Deel menu via WhatsApp</button>
-      </div>
-      <label class="toggle" style="margin-top:12px;">
-        <input type="checkbox" id="daily-reset-toggle">
-        Elke dag opnieuw plaatsen (klanten zien het menu alleen als het voor vandaag geplaatst is)
-      </label>
-    </div>
-
     <div class="card row" style="justify-content:space-between;">
-      <span class="muted">Snel alles aan-/uitvinken:</span>
+      <span class="muted">Snel alles aan-/uitvinken voor deze week:</span>
       <div class="row" style="gap:8px;">
         <button class="secondary" id="btn-select-all">Alles beschikbaar</button>
         <button class="secondary" id="btn-select-none">Alles niet beschikbaar</button>
@@ -626,36 +553,11 @@
       </div>
     </div>
 
-    <h2 id="klant-menu-title">Menu van vandaag</h2>
+    <h2>Beschikbaar deze week</h2>
     <div class="card" id="klant-items"></div>
-
-    <div class="card order-done" id="order-done" style="display:none;">
-      <h3>Bijna klaar! 🎉</h3>
-      <p style="margin:0 0 12px;">Je bestelling is opgeslagen. Stuur hem nu via WhatsApp naar de winkel, zodat ze hem direct zien.</p>
-      <button class="whatsapp" id="btn-send-wa" type="button" style="width:100%;">Stuur bestelling via WhatsApp</button>
-      <p class="muted" id="order-done-note" style="margin:10px 0 0;"></p>
-      <button class="secondary" id="btn-order-done-close" type="button" style="margin-top:10px;">Nieuwe bestelling</button>
-    </div>
 
     <div class="cart-summary" id="cart-summary" style="display:none;">
       <div class="total-line"><span>Totaal</span><span id="cart-total">ƒ 0.00</span></div>
-      <label>Afhalen of bezorgen</label>
-      <div class="pill-select" id="fulfil-select" style="margin-bottom:10px;">
-        <button data-val="Afhalen" class="selected">Afhalen</button>
-        <button data-val="Bezorgen">Bezorgen</button>
-      </div>
-      <div class="row" style="margin-bottom:10px;">
-        <div class="field" id="k-adres-wrap" style="display:none;">
-          <label for="k-adres">Bezorgadres</label>
-          <input type="text" id="k-adres" placeholder="Straat, huisnummer, wijk">
-        </div>
-        <div class="field" style="max-width:170px;">
-          <label for="k-tijd">Hoe laat?</label>
-          <input type="text" id="k-tijd" placeholder="bv. 12:30 of zo snel mogelijk">
-        </div>
-      </div>
-      <label for="k-opmerking">Opmerking (optioneel)</label>
-      <textarea id="k-opmerking" placeholder="bv. zonder ui, extra saus" style="margin-bottom:10px;"></textarea>
       <label>Betaalmethode</label>
       <div class="pill-select" id="payment-select">
         <button data-val="Contant" class="selected">Contant</button>
@@ -716,9 +618,9 @@
 // ---------- versie ----------
 // Verhoog dit nummer (en de datum) bij elke wijziging aan dit bestand, zodat altijd
 // duidelijk is welke versie er precies draait / gedeeld is.
-const APP_VERSION = '1.6.0';
-const APP_VERSION_DATE = '2026-10-29';
-const APP_VERSION_NOTE = 'Beveiliging: bestellingen en tegoed in eigen tabellen; prijs, voorraad, dagmenu en tegoed worden op de server gecontroleerd (place_order). Klanten zien alleen hun eigen bestellingen.';
+const APP_VERSION = '1.2.0';
+const APP_VERSION_DATE = '2026-08-18';
+const APP_VERSION_NOTE = 'Header toont nu de Winkelnaam i.p.v. "Digital Menu Maker" zodra een winkel is ingelogd of via de klantlink bekeken wordt';
 document.addEventListener('DOMContentLoaded', ()=>{
   const el = document.getElementById('app-version');
   if(el) el.textContent = `Digital Menu Maker · v${APP_VERSION} · ${APP_VERSION_DATE}`;
@@ -734,7 +636,7 @@ const winkelSlug = urlParams.get('winkel');
 const appMode = winkelSlug ? 'customer' : 'owner';
 
 let session = null;
-let store = null;      // actieve winkel: {id, slug, name, phone, address, hours, description, logo, bg_color, header_bg}
+let store = null;      // actieve winkel: {id, slug, name, phone, address, hours, description, logo, bg_color}
 let storeId = null;
 let authMode = 'login';
 
@@ -754,38 +656,6 @@ let creditBalances = {}; // phone -> { name, balance }
 let purchases = []; // { id, product, amount, date }
 let cart = {}; // itemId -> qty
 let selectedPayment = 'Contant';
-let selectedFulfil = 'Afhalen';
-let settings = { dailyReset: true, menuDate: '' }; // per winkel, in app_data
-let lastWaUrl = '';
-
-// datum van vandaag op Curaçao (jjjj-mm-dd), los van de tijdzone van het toestel
-function todayCw(){
-  try{
-    return new Intl.DateTimeFormat('en-CA', { timeZone:'America/Curacao', year:'numeric', month:'2-digit', day:'2-digit' }).format(new Date());
-  }catch(e){
-    return new Date().toISOString().slice(0,10);
-  }
-}
-function prettyDate(iso){
-  if(!iso) return '';
-  const [y,m,d] = iso.split('-').map(Number);
-  return new Date(y, m-1, d).toLocaleDateString('nl-NL', { weekday:'long', day:'numeric', month:'long' });
-}
-function menuIsLive(){
-  return !settings.dailyReset || settings.menuDate === todayCw();
-}
-// WhatsApp-nummer: lokaal Curaçao-nummer (7 cijfers) krijgt 5999 ervoor
-function waNumber(raw){
-  let d = (raw||'').replace(/[^\d+]/g,'');
-  if(d.startsWith('+')) d = d.slice(1);
-  else if(d.startsWith('00')) d = d.slice(2);
-  d = d.replace(/\D/g,'');
-  if(d.length === 7) d = '5999' + d;
-  else if(d.length === 8 && d.startsWith('9')) d = '599' + d;
-  return d;
-}
-function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
-function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 
 function normPhone(p){ return (p||'').replace(/\s+/g,'').trim(); }
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
@@ -815,10 +685,9 @@ function showView(which){
   document.getElementById('main-tabs').style.display = which==='main' ? '' : 'none';
 }
 
-// ---------- thema per winkel: logo + achtergrondkleur + header-achtergrond ----------
+// ---------- thema per winkel: logo + achtergrondkleur ----------
 function applyTheme(s){
   document.documentElement.style.setProperty('--paper', (s && s.bg_color) || '#FBF6EC');
-  const headerEl = document.querySelector('header');
   const headerLogo = document.getElementById('header-logo');
   const headerTitle = document.getElementById('header-title');
   if(s && s.logo){
@@ -826,11 +695,6 @@ function applyTheme(s){
     headerLogo.style.display = 'block';
   } else {
     headerLogo.style.display = 'none';
-  }
-  if(s && s.header_bg){
-    headerEl.style.backgroundImage = `linear-gradient(rgba(10,20,30,0.42),rgba(10,20,30,0.42)), url('${s.header_bg}')`;
-  } else {
-    headerEl.style.backgroundImage = '';
   }
   headerTitle.textContent = (s && s.name) ? s.name : 'Digital Menu Maker';
   document.title = s && s.name ? (s.name + ' — Digital Menu Maker') : 'Digital Menu Maker';
@@ -847,55 +711,20 @@ async function setData(name, value){
   if(error) throw error;
 }
 async function saveMenu(){ await setData('menu-items', menuItems); }
-function mapOrderRow(r){
-  return {
-    id: r.id,
-    customer: r.customer || '',
-    phone: r.phone || '',
-    items: r.items || [],
-    total: Number(r.total) || 0,
-    payment: r.payment || '',
-    fulfil: r.fulfil || 'Afhalen',
-    address: r.address || '',
-    time: r.pickup_time || '',
-    note: r.note || '',
-    status: r.status || 'Nieuw',
-    timestamp: Date.parse(r.created_at) || Date.now()
-  };
-}
-async function loadOrders(){
-  const { data, error } = await sb.from('orders').select('*').eq('store_id', storeId).order('created_at', { ascending: true }).limit(1000);
-  if(error) throw error;
-  orders = (data || []).map(mapOrderRow);
-}
-async function loadCredits(){
-  const { data, error } = await sb.from('credits').select('phone,name,balance').eq('store_id', storeId);
-  if(error) throw error;
-  creditBalances = {};
-  (data || []).forEach(r=>{ creditBalances[r.phone] = { name: r.name || '', balance: Number(r.balance) || 0 }; });
-}
+async function saveOrders(){ await setData('orders', orders); }
+async function saveCredit(){ await setData('credit-balances', creditBalances); }
 async function savePurchases(){ await setData('purchases', purchases); }
-async function saveSettings(){ await setData('settings', settings); }
 
 async function loadTenantData(){
-  const isOwner = appMode === 'owner';
-  const [m,p,st] = await Promise.all([
+  const [m,o,c,p] = await Promise.all([
     getData('menu-items').catch(()=>null),
-    isOwner ? getData('purchases').catch(()=>null) : Promise.resolve(null),
-    getData('settings').catch(()=>null),
+    getData('orders').catch(()=>null),
+    getData('credit-balances').catch(()=>null),
+    getData('purchases').catch(()=>null),
   ]);
-  orders = [];
-  creditBalances = {};
-  if(isOwner){
-    await Promise.all([
-      loadOrders().catch(err=>{ console.error('Bestellingen laden mislukt', err); }),
-      loadCredits().catch(err=>{ console.error('Tegoed laden mislukt', err); }),
-    ]);
-  }
-  settings = Object.assign({ dailyReset: true, menuDate: '' }, st || {});
-  // bestaande winkels zonder instellingen: niet ineens het menu dichtzetten
-  if(!st){ settings.dailyReset = false; }
   menuItems = m || [];
+  orders = o || [];
+  creditBalances = c || {};
   purchases = p || [];
 }
 
@@ -909,7 +738,6 @@ function renderAll(){
   renderStoreForm();
   renderStoreInfoCard();
   renderPurchasesTable();
-  renderDailyBar();
   updateKlantLink();
 }
 
@@ -1172,7 +1000,6 @@ function renderStoreForm(){
   document.getElementById('s-slug').value = store.slug || '';
   document.getElementById('s-bgcolor').value = store.bg_color || '#FBF6EC';
   renderLogoPreview();
-  renderHeaderBgPreview();
 }
 
 function renderLogoPreview(){
@@ -1189,21 +1016,7 @@ function renderLogoPreview(){
   }
 }
 
-function renderHeaderBgPreview(){
-  const img = document.getElementById('header-bg-preview');
-  const placeholder = document.getElementById('header-bg-placeholder');
-  const headerBg = store && store.header_bg;
-  if(headerBg){
-    img.src = headerBg;
-    img.style.display = 'block';
-    placeholder.style.display = 'none';
-  } else {
-    img.style.display = 'none';
-    placeholder.style.display = 'block';
-  }
-}
-
-function resizeImageToDataUrl(file, maxSize, quality){
+function resizeImageToDataUrl(file, maxSize){
   return new Promise((resolve, reject)=>{
     const reader = new FileReader();
     reader.onerror = () => reject(new Error('Kon bestand niet lezen'));
@@ -1223,7 +1036,7 @@ function resizeImageToDataUrl(file, maxSize, quality){
         canvas.width = width;
         canvas.height = height;
         canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', quality == null ? 0.82 : quality));
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
       };
       img.src = reader.result;
     };
@@ -1260,34 +1073,6 @@ document.getElementById('btn-remove-logo').addEventListener('click', async ()=>{
   }
 });
 
-document.getElementById('s-header-bg-input').addEventListener('change', async (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  try{
-    store.header_bg = await resizeImageToDataUrl(file, 900, 0.75);
-    renderHeaderBgPreview();
-    showToast('Header-achtergrond klaar — klik op "Profiel opslaan" om te bewaren');
-  }catch(err){
-    console.error('Header-achtergrond verwerken mislukt', err);
-    showToast('Kon deze afbeelding niet verwerken');
-  }
-  e.target.value = '';
-});
-
-document.getElementById('btn-remove-header-bg').addEventListener('click', async ()=>{
-  store.header_bg = '';
-  renderHeaderBgPreview();
-  try{
-    const { error } = await sb.from('stores').update({ header_bg: '' }).eq('id', storeId);
-    if(error) throw error;
-    applyTheme(store);
-    showToast('Header-achtergrond verwijderd — terug naar standaard blauw');
-  }catch(err){
-    console.error(err);
-    showToast('Verwijderen mislukt');
-  }
-});
-
 document.getElementById('btn-save-store').addEventListener('click', async ()=>{
   const newSlug = slugify(document.getElementById('s-slug').value || document.getElementById('s-naam').value);
   const updated = {
@@ -1299,7 +1084,6 @@ document.getElementById('btn-save-store').addEventListener('click', async ()=>{
     slug: newSlug,
     bg_color: document.getElementById('s-bgcolor').value || '#FBF6EC',
     logo: store.logo || '',
-    header_bg: store.header_bg || '',
   };
   try{
     const { data, error } = await sb.from('stores').update(updated).eq('id', storeId).select().single();
@@ -1314,7 +1098,6 @@ document.getElementById('btn-save-store').addEventListener('click', async ()=>{
     applyTheme(store);
     renderStoreInfoCard();
     renderLogoPreview();
-    renderHeaderBgPreview();
     updateKlantLink();
     showToast('Winkelprofiel opgeslagen');
   }catch(err){
@@ -1399,87 +1182,8 @@ document.getElementById('btn-import-excel').addEventListener('click', async ()=>
   }
 });
 
-// ---------- WINKEL: menu van vandaag ----------
-function renderDailyBar(){
-  const bar = document.getElementById('daily-bar');
-  if(!bar) return;
-  const live = menuIsLive();
-  const today = todayCw();
-  const count = menuItems.filter(i=>i.available).length;
-  bar.classList.toggle('live', live);
-  document.getElementById('daily-reset-toggle').checked = !!settings.dailyReset;
-  if(!settings.dailyReset){
-    document.getElementById('daily-status').textContent = `Menu staat altijd open · ${count} item${count===1?'':'s'} beschikbaar`;
-    document.getElementById('daily-sub').textContent = 'Klanten kunnen altijd bestellen wat op "beschikbaar" staat.';
-  } else if(live){
-    document.getElementById('daily-status').textContent = `✓ Menu van vandaag staat online · ${count} item${count===1?'':'s'}`;
-    document.getElementById('daily-sub').textContent = `Geplaatst voor ${prettyDate(today)}. Morgen sluit het menu automatisch tot je het opnieuw plaatst.`;
-  } else {
-    document.getElementById('daily-status').textContent = 'Menu van vandaag is nog niet geplaatst';
-    document.getElementById('daily-sub').textContent = settings.menuDate
-      ? `Laatst geplaatst: ${prettyDate(settings.menuDate)}. Vink aan wat je vandaag hebt en klik op "Menu van vandaag plaatsen" — of plaats meteen hetzelfde menu als de vorige keer.`
-      : 'Vink hieronder aan wat je vandaag hebt en klik op "Menu van vandaag plaatsen".';
-  }
-  document.getElementById('btn-publish-today').textContent = live && settings.dailyReset
-    ? 'Menu bijgewerkt — opnieuw plaatsen'
-    : (settings.menuDate && settings.dailyReset ? 'Zelfde menu plaatsen voor vandaag' : 'Menu van vandaag plaatsen');
-  document.getElementById('btn-publish-today').style.display = settings.dailyReset ? '' : 'none';
-}
-
-document.getElementById('btn-publish-today').addEventListener('click', async ()=>{
-  const count = menuItems.filter(i=>i.available).length;
-  if(count === 0){
-    showToast('Zet eerst minstens één item op beschikbaar');
-    return;
-  }
-  settings.menuDate = todayCw();
-  try{
-    await saveSettings();
-    renderDailyBar();
-    renderKlantItems();
-    showToast('Menu van vandaag staat online');
-  }catch(err){
-    console.error(err);
-    showToast('Plaatsen mislukt — probeer opnieuw');
-  }
-});
-
-document.getElementById('daily-reset-toggle').addEventListener('change', async (e)=>{
-  settings.dailyReset = e.target.checked;
-  if(settings.dailyReset && !settings.menuDate) settings.menuDate = todayCw();
-  await saveSettings();
-  renderDailyBar();
-  renderKlantItems();
-});
-
-function shareMenuText(){
-  const items = menuItems.filter(i=>i.available);
-  const groups = {};
-  items.forEach(i=>{ const c = i.category || 'Overig'; (groups[c] = groups[c] || []).push(i); });
-  let t = `*${store && store.name ? store.name : 'Menu'} — menu di awe* 🍽️\n${prettyDate(todayCw())}\n`;
-  Object.keys(groups).forEach(c=>{
-    t += `\n*${c}*\n`;
-    groups[c].forEach(i=>{ t += `• ${i.name} — ${money(i.price)}\n`; });
-  });
-  t += `\nBestel hier 👉 ${document.getElementById('klant-link').value}`;
-  return t;
-}
-
-document.getElementById('btn-share-menu').addEventListener('click', ()=>{
-  if(!menuItems.some(i=>i.available)){
-    showToast('Er staat nog niets op beschikbaar');
-    return;
-  }
-  if(settings.dailyReset && !menuIsLive()){
-    showToast('Plaats eerst het menu van vandaag, anders zien klanten niets');
-    return;
-  }
-  window.open('https://wa.me/?text=' + encodeURIComponent(shareMenuText()), '_blank');
-});
-
 // ---------- WINKEL: items ----------
 function renderItemsList(){
-  renderDailyBar();
   const wrap = document.getElementById('items-list');
   if(menuItems.length === 0){
     wrap.innerHTML = '<div class="empty">Nog geen items — voeg hierboven je eerste menu-item toe of importeer een Excel-bestand.</div>';
@@ -1509,22 +1213,16 @@ function renderItemsList(){
     wrap.appendChild(header);
 
     items.forEach(item=>{
-      const tracked = item.stock !== null && item.stock !== undefined;
-      const lowStock = tracked && item.stock <= 3;
       const row = document.createElement('div');
       row.className = 'item-row';
       row.innerHTML = `
         <div>
           <div class="item-name">${escapeHtml(item.name)}</div>
-          <div class="item-cat">${money(item.price)}${lowStock ? ` · <span style="color:var(--otro-coral);font-weight:600;">nog ${item.stock}</span>` : ''}</div>
-        </div>
-        <div style="max-width:84px;">
-          <label style="margin-bottom:2px;">Voorraad</label>
-          <input type="number" min="0" step="1" data-id="${item.id}" class="stock-input" value="${tracked ? item.stock : ''}" placeholder="∞">
+          <div class="item-cat">${money(item.price)}</div>
         </div>
         <label class="toggle">
-          <input type="checkbox" data-id="${item.id}" class="avail-toggle" ${item.available?'checked':''} ${tracked?'disabled':''}>
-          Beschikbaar${tracked ? ' <span class="muted">(auto)</span>' : ''}
+          <input type="checkbox" data-id="${item.id}" class="avail-toggle" ${item.available?'checked':''}>
+          Beschikbaar
         </label>
         <button class="danger" data-id="${item.id}" data-action="delete-item">Verwijder</button>
       `;
@@ -1568,22 +1266,6 @@ document.getElementById('items-list').addEventListener('change', async (e)=>{
     await saveMenu();
     renderItemsList();
     renderKlantItems();
-  } else if(e.target.classList.contains('stock-input')){
-    const id = e.target.dataset.id;
-    const item = menuItems.find(i=>i.id===id);
-    if(item){
-      const raw = e.target.value.trim();
-      if(raw === ''){
-        item.stock = null; // onbeperkt / niet bijgehouden — Beschikbaar-schakelaar weer handmatig
-      } else {
-        const n = Math.max(0, parseInt(raw, 10) || 0);
-        item.stock = n;
-        item.available = n > 0;
-      }
-      await saveMenu();
-      renderItemsList();
-      renderKlantItems();
-    }
   }
 });
 document.getElementById('items-list').addEventListener('click', async (e)=>{
@@ -1638,8 +1320,6 @@ function renderOrdersList(){
         <span class="muted">${escapeHtml(o.phone||'')} · betaling: ${escapeHtml(o.payment)}</span>
         <strong>${money(o.total)}</strong>
       </div>
-      ${o.fulfil ? `<div class="muted" style="margin-top:4px;">${o.fulfil === 'Bezorgen' ? '🛵 Bezorgen: ' + escapeHtml(o.address||'') : '🛍️ Afhalen'}${o.time ? ' · ' + escapeHtml(o.time) : ''}</div>` : ''}
-      ${o.note ? `<div class="muted" style="margin-top:2px;">📝 ${escapeHtml(o.note)}</div>` : ''}
       <div class="row" style="margin-top:10px;">
         <select data-id="${o.id}" class="status-select">
           ${statusFlow.map(s=>`<option value="${s}" ${s===o.status?'selected':''}>${s}</option>`).join('')}
@@ -1655,15 +1335,10 @@ document.getElementById('orders-list').addEventListener('change', async (e)=>{
     const id = e.target.dataset.id;
     const o = orders.find(x=>x.id===id);
     if(o){
-      const prev = o.status;
       o.status = e.target.value;
-      const { error } = await sb.from('orders').update({ status: o.status }).eq('id', id);
-      if(error){
-        console.error(error);
-        o.status = prev;
-        showToast('Status opslaan mislukt');
-      }
+      await saveOrders();
       renderOrdersList();
+      renderMyOrders();
     }
   }
 });
@@ -1718,18 +1393,11 @@ document.getElementById('btn-topup').addEventListener('click', async ()=>{
     showToast('Vul een geldig bedrag in (of laat op 0 om alleen bij te werken)');
     return;
   }
-  // actuele stand ophalen (kan intussen door een bestelling met tegoed veranderd zijn)
-  try{ await loadCredits(); }catch(err){ console.error(err); }
   const existing = creditBalances[tel] || { name: naam, balance: 0 };
   existing.name = naam || existing.name;
-  existing.balance = Math.round((existing.balance + bedrag) * 100) / 100;
-  const { error } = await sb.from('credits').upsert({ store_id: storeId, phone: tel, name: existing.name, balance: existing.balance, updated_at: new Date().toISOString() });
-  if(error){
-    console.error(error);
-    showToast('Opslaan mislukt — probeer opnieuw');
-    return;
-  }
+  existing.balance = existing.balance + bedrag;
   creditBalances[tel] = existing;
+  await saveCredit();
   document.getElementById('c-naam').value='';
   document.getElementById('c-tel').value='';
   document.getElementById('c-bedrag').value='';
@@ -1742,37 +1410,25 @@ document.getElementById('btn-topup').addEventListener('click', async ()=>{
 // ---------- KLANT: items & cart ----------
 function renderKlantItems(){
   const wrap = document.getElementById('klant-items');
-  const titleEl = document.getElementById('klant-menu-title');
-  if(titleEl) titleEl.textContent = settings.dailyReset ? `Menu van vandaag · ${prettyDate(todayCw())}` : 'Menu';
-  if(!menuIsLive()){
-    cart = {};
-    wrap.innerHTML = '<div class="empty">Het menu van vandaag is nog niet geplaatst. Kom straks terug! 🙂</div>';
-    const cs = document.getElementById('cart-summary');
-    if(cs) cs.style.display = 'none';
-    return;
-  }
   const beschikbaar = menuItems.filter(i=>i.available);
   if(beschikbaar.length === 0){
-    wrap.innerHTML = '<div class="empty">Er is op dit moment niets beschikbaar.</div>';
+    wrap.innerHTML = '<div class="empty">Deze week is er nog niets beschikbaar gezet door de winkel.</div>';
     return;
   }
   wrap.innerHTML = '';
   beschikbaar.forEach(item=>{
     const qty = cart[item.id] || 0;
-    const tracked = item.stock !== null && item.stock !== undefined;
-    const lowStock = tracked && item.stock <= 3;
-    const stockNote = tracked ? ` · <span style="${lowStock?'color:var(--otro-coral);font-weight:600;':''}">nog ${item.stock} over</span>` : '';
     const row = document.createElement('div');
     row.className = 'item-row';
     row.innerHTML = `
       <div>
         <div class="item-name">${escapeHtml(item.name)}</div>
-        <div class="item-cat">${escapeHtml(item.category||'')} · ${money(item.price)}${stockNote}</div>
+        <div class="item-cat">${escapeHtml(item.category||'')} · ${money(item.price)}</div>
       </div>
       <div class="qty-stepper">
         <button data-id="${item.id}" data-delta="-1">−</button>
         <span style="min-width:16px;text-align:center;">${qty}</span>
-        <button data-id="${item.id}" data-delta="1" ${tracked && qty>=item.stock ? 'disabled' : ''}>+</button>
+        <button data-id="${item.id}" data-delta="1">+</button>
       </div>
     `;
     wrap.appendChild(row);
@@ -1781,14 +1437,10 @@ function renderKlantItems(){
 
 document.getElementById('klant-items').addEventListener('click', (e)=>{
   const btn = e.target.closest('button[data-id]');
-  if(!btn || btn.disabled) return;
+  if(!btn) return;
   const id = btn.dataset.id;
-  const item = menuItems.find(i=>i.id===id);
   const delta = parseInt(btn.dataset.delta);
-  let newQty = Math.max(0, (cart[id]||0) + delta);
-  if(item && item.stock !== null && item.stock !== undefined){
-    newQty = Math.min(newQty, item.stock);
-  }
+  const newQty = Math.max(0, (cart[id]||0) + delta);
   if(newQty === 0) delete cart[id];
   else cart[id] = newQty;
   renderKlantItems();
@@ -1807,44 +1459,21 @@ function cartTotal(){
 function renderCart(){
   const summary = document.getElementById('cart-summary');
   const total = cartTotal();
-  const hasItems = Object.keys(cart).length > 0 && menuIsLive();
+  const hasItems = Object.keys(cart).length > 0;
   summary.style.display = hasItems ? 'block' : 'none';
   document.getElementById('cart-total').textContent = money(total);
 
   const note = document.getElementById('credit-balance-note');
   if(selectedPayment === 'Credit'){
     const tel = normPhone(document.getElementById('k-tel').value);
+    const entry = tel ? creditBalances[tel] : null;
     note.style.display = 'block';
-    if(!tel){
-      note.textContent = 'Vul je telefoonnummer in om je tegoed te zien.';
-    } else if(creditLookup.phone === tel && creditLookup.done){
-      note.textContent = creditLookup.balance === null
-        ? 'Geen tegoed bekend voor dit telefoonnummer — vraag de winkel om op te waarderen.'
-        : `Beschikbaar tegoed: ${money(creditLookup.balance)}`;
-    } else {
-      note.textContent = 'Tegoed opzoeken…';
-      scheduleCreditLookup(tel);
-    }
+    note.textContent = tel
+      ? (entry ? `Beschikbaar tegoed: ${money(entry.balance)}` : 'Geen tegoed bekend voor dit telefoonnummer — vraag de winkel om op te waarderen.')
+      : 'Vul je telefoonnummer in om je tegoed te zien.';
   } else {
     note.style.display = 'none';
   }
-}
-
-let creditLookup = { phone: '', balance: null, done: false };
-let creditLookupTimer = null;
-function scheduleCreditLookup(tel){
-  clearTimeout(creditLookupTimer);
-  creditLookupTimer = setTimeout(async ()=>{
-    try{
-      const { data, error } = await sb.rpc('get_credit', { p_store_id: storeId, p_phone: tel });
-      if(error) throw error;
-      creditLookup = { phone: tel, balance: data === null ? null : Number(data), done: true };
-    }catch(err){
-      console.error(err);
-      creditLookup = { phone: tel, balance: null, done: true };
-    }
-    if(normPhone(document.getElementById('k-tel').value) === tel) renderCart();
-  }, 500);
 }
 
 document.getElementById('payment-select').addEventListener('click', (e)=>{
@@ -1854,22 +1483,6 @@ document.getElementById('payment-select').addEventListener('click', (e)=>{
   [...document.querySelectorAll('#payment-select button')].forEach(b=>b.classList.toggle('selected', b===btn));
   renderCart();
 });
-
-document.getElementById('fulfil-select').addEventListener('click', (e)=>{
-  const btn = e.target.closest('button[data-val]');
-  if(!btn) return;
-  selectedFulfil = btn.dataset.val;
-  [...document.querySelectorAll('#fulfil-select button')].forEach(b=>b.classList.toggle('selected', b===btn));
-  document.getElementById('k-adres-wrap').style.display = selectedFulfil === 'Bezorgen' ? '' : 'none';
-});
-
-// klantgegevens onthouden op dit toestel
-(function(){
-  const n = lsGet('dmm-klant-naam'), t = lsGet('dmm-klant-tel'), a = lsGet('dmm-klant-adres');
-  if(n) document.getElementById('k-naam').value = n;
-  if(t) document.getElementById('k-tel').value = t;
-  if(a) document.getElementById('k-adres').value = a;
-})();
 
 document.getElementById('k-naam').addEventListener('input', renderCart);
 document.getElementById('k-tel').addEventListener('input', renderCart);
@@ -1885,187 +1498,84 @@ document.getElementById('btn-order').addEventListener('click', async ()=>{
     showToast('Je winkelmandje is leeg');
     return;
   }
-  if(!menuIsLive()){
-    showToast('Het menu van vandaag is gesloten');
-    return;
+  const total = cartTotal();
+  if(selectedPayment === 'Credit'){
+    const entry = creditBalances[tel];
+    const balance = entry ? entry.balance : 0;
+    if(balance < total){
+      showToast(`Onvoldoende tegoed (${money(balance)} beschikbaar)`);
+      return;
+    }
   }
-  const adres = document.getElementById('k-adres').value.trim();
-  const tijd = document.getElementById('k-tijd').value.trim();
-  const opmerking = document.getElementById('k-opmerking').value.trim();
-  if(selectedFulfil === 'Bezorgen' && !adres){
-    showToast('Vul je bezorgadres in');
-    return;
-  }
-  const btnOrder = document.getElementById('btn-order');
-  btnOrder.disabled = true;
-  btnOrder.textContent = 'Bezig…';
-  let result;
-  try{
-    const { data, error } = await sb.rpc('place_order', {
-      p_store_id: storeId,
-      p_customer: naam,
-      p_phone: tel,
-      p_items: Object.entries(cart).map(([itemId, qty])=>({ itemId, qty })),
-      p_payment: selectedPayment,
-      p_fulfil: selectedFulfil,
-      p_address: selectedFulfil === 'Bezorgen' ? adres : '',
-      p_time: tijd,
-      p_note: opmerking
-    });
-    if(error) throw error;
-    result = data;
-  }catch(err){
-    console.error(err);
-    showToast(orderErrorText(err));
-    // menu opnieuw ophalen: voorraad of beschikbaarheid kan veranderd zijn
-    try{ menuItems = (await getData('menu-items')) || menuItems; settings = Object.assign(settings, (await getData('settings')) || {}); }catch(e){}
-    renderKlantItems();
-    renderCart();
-    return;
-  }finally{
-    btnOrder.disabled = false;
-    btnOrder.textContent = 'Bestelling plaatsen';
-  }
+
+  const items = Object.entries(cart).map(([id,qty])=>{
+    const item = menuItems.find(i=>i.id===id);
+    return { itemId: id, name: item.name, price: item.price, qty };
+  });
 
   const order = {
-    id: result.id,
+    id: uid(),
     customer: naam,
     phone: tel,
-    items: result.items || [],
-    total: Number(result.total) || 0,
+    items,
+    total,
     payment: selectedPayment,
-    fulfil: selectedFulfil,
-    address: selectedFulfil === 'Bezorgen' ? adres : '',
-    time: tijd,
-    note: opmerking,
     status: 'Nieuw',
-    timestamp: Date.parse(result.created_at) || Date.now()
+    timestamp: Date.now()
   };
-  rememberMyOrder(order.id);
-  creditLookup.done = false;
 
-  // actuele voorraad ophalen na de bestelling
-  try{ menuItems = (await getData('menu-items')) || menuItems; }catch(e){}
-  if(appMode === 'owner'){
-    try{ await Promise.all([loadOrders(), loadCredits()]); }catch(e){}
-    renderItemsList();
-    renderOrdersList();
+  orders.push(order);
+  await saveOrders();
+
+  if(selectedPayment === 'Credit'){
+    const entry = creditBalances[tel] || { name: naam, balance: 0 };
+    entry.balance -= total;
+    entry.name = entry.name || naam;
+    creditBalances[tel] = entry;
+    await saveCredit();
     renderCreditTable();
   }
 
-  lsSet('dmm-klant-naam', naam);
-  lsSet('dmm-klant-tel', tel);
-  if(adres) lsSet('dmm-klant-adres', adres);
-
   cart = {};
-  document.getElementById('k-opmerking').value = '';
-  document.getElementById('k-tijd').value = '';
   renderKlantItems();
   renderCart();
   renderMyOrders();
-  showOrderDone(order);
-});
-
-function orderErrorText(err){
-  const m = (err && (err.message || '')) + '';
-  if(m.includes('MENU_GESLOTEN')) return 'Het menu van vandaag is gesloten';
-  if(m.includes('NIET_BESCHIKBAAR')){ const n = m.split('NIET_BESCHIKBAAR:')[1] || ''; return `"${n.trim()}" is niet meer beschikbaar`; }
-  if(m.includes('VOORRAAD')){ const parts = (m.split('VOORRAAD:')[1] || '').split(':'); return `Onvoldoende voorraad van "${parts[0]}" (nog ${parts[1]||0} over)`; }
-  if(m.includes('TEGOED')){ const b = parseFloat((m.split('TEGOED:')[1]||'0')) || 0; return `Onvoldoende tegoed (${money(b)} beschikbaar)`; }
-  if(m.includes('ITEM_ONBEKEND')) return 'Een item uit je mandje bestaat niet meer — ververs de pagina';
-  if(m.includes('ADRES_VERPLICHT')) return 'Vul je bezorgadres in';
-  if(m.includes('NAAM_TEL_VERPLICHT')) return 'Vul je naam en telefoonnummer in';
-  if(m.includes('MENU_LEEG')) return 'Deze winkel heeft nog geen menu';
-  return 'Bestellen mislukt — controleer je internet en probeer opnieuw';
-}
-
-function myOrdersKey(){ return 'dmm-mijn-bestellingen-' + storeId; }
-function getMyOrderIds(){
-  try{ const v = JSON.parse(lsGet(myOrdersKey()) || '[]'); return Array.isArray(v) ? v : []; }catch(e){ return []; }
-}
-function rememberMyOrder(id){
-  const ids = getMyOrderIds().filter(x=>x!==id);
-  ids.unshift(id);
-  lsSet(myOrdersKey(), JSON.stringify(ids.slice(0,30)));
-}
-
-function orderWhatsAppText(o){
-  let t = `*Nieuwe bestelling* 🛒\n`;
-  o.items.forEach(it=>{ t += `${it.qty}× ${it.name} — ${money(it.price*it.qty)}\n`; });
-  t += `\n*Totaal: ${money(o.total)}*\n`;
-  t += `Betaling: ${o.payment === 'Credit' ? 'met tegoed' : o.payment === 'Bank' ? 'via bank' : 'contant'}\n`;
-  t += `${o.fulfil === 'Bezorgen' ? 'Bezorgen naar: ' + o.address : 'Afhalen'}${o.time ? ' · ' + o.time : ''}\n`;
-  if(o.note) t += `Opmerking: ${o.note}\n`;
-  t += `\nNaam: ${o.customer}\nTel: ${o.phone}\nBestelnr: ${o.id.slice(-5).toUpperCase()}`;
-  return t;
-}
-
-function showOrderDone(o){
-  const num = waNumber(store && store.phone);
-  const wrap = document.getElementById('order-done');
-  const note = document.getElementById('order-done-note');
-  const btn = document.getElementById('btn-send-wa');
-  if(num){
-    lastWaUrl = `https://wa.me/${num}?text=${encodeURIComponent(orderWhatsAppText(o))}`;
-    btn.style.display = '';
-    note.textContent = `Bestelnummer ${o.id.slice(-5).toUpperCase()} · de status zie je hieronder bij "Mijn bestellingen".`;
-  } else {
-    lastWaUrl = '';
-    btn.style.display = 'none';
-    note.textContent = `Bestelnummer ${o.id.slice(-5).toUpperCase()} · de winkel ziet je bestelling in hun overzicht.`;
-  }
-  wrap.style.display = 'block';
-  wrap.scrollIntoView({ behavior:'smooth', block:'center' });
-}
-document.getElementById('btn-send-wa').addEventListener('click', ()=>{
-  if(lastWaUrl) window.location.href = lastWaUrl;
-});
-document.getElementById('btn-order-done-close').addEventListener('click', ()=>{
-  document.getElementById('order-done').style.display = 'none';
+  showToast('Bestelling geplaatst!');
 });
 
 // ---------- KLANT: mijn bestellingen ----------
-async function renderMyOrders(){
+function renderMyOrders(){
   const wrap = document.getElementById('my-orders');
-  if(!wrap || !storeId) return;
-  const ids = getMyOrderIds();
-  if(ids.length === 0){
-    wrap.innerHTML = '<div class="empty">Je hebt op dit toestel nog geen bestellingen geplaatst.</div>';
+  const tel = normPhone(document.getElementById('k-tel').value);
+  if(!tel){
+    wrap.innerHTML = '<div class="empty">Vul je telefoonnummer in om je bestellingen te zien.</div>';
     return;
   }
-  let rows = [];
-  try{
-    const { data, error } = await sb.rpc('order_status', { p_ids: ids });
-    if(error) throw error;
-    rows = data || [];
-  }catch(err){
-    console.error(err);
-    wrap.innerHTML = '<div class="empty">Kon je bestellingen niet laden.</div>';
-    return;
-  }
-  if(rows.length === 0){
-    wrap.innerHTML = '<div class="empty">Je hebt op dit toestel nog geen bestellingen geplaatst.</div>';
+  const mine = orders.filter(o=>normPhone(o.phone) === tel);
+  if(mine.length === 0){
+    wrap.innerHTML = '<div class="empty">Je hebt nog geen bestellingen geplaatst.</div>';
     return;
   }
   wrap.innerHTML = '';
-  rows.forEach(o=>{
+  [...mine].reverse().forEach(o=>{
     const el = document.createElement('div');
     el.className = 'card order-card status-' + o.status;
-    const itemsStr = (o.items||[]).map(it=>`${it.qty}× ${escapeHtml(it.name)}`).join(', ');
+    const itemsStr = o.items.map(it=>`${it.qty}× ${escapeHtml(it.name)}`).join(', ');
     el.innerHTML = `
       <div class="order-head">
-        <strong>${escapeHtml(o.status)}</strong>
-        <span class="muted">${new Date(o.created_at).toLocaleString('nl-NL')}</span>
+        <strong>${o.status}</strong>
+        <span class="muted">${new Date(o.timestamp).toLocaleString('nl-NL')}</span>
       </div>
       <div class="order-items">${itemsStr}</div>
       <div class="row" style="justify-content:space-between;">
-        <span class="muted">${escapeHtml(o.fulfil||'')}${o.pickup_time ? ' · ' + escapeHtml(o.pickup_time) : ''} · betaling: ${escapeHtml(o.payment)}</span>
+        <span class="muted">Betaling: ${escapeHtml(o.payment)}</span>
         <strong>${money(o.total)}</strong>
       </div>
     `;
     wrap.appendChild(el);
   });
 }
+document.getElementById('k-tel').addEventListener('change', renderMyOrders);
 
 // ---------- DASHBOARD ----------
 function renderDashboard(){
@@ -2123,17 +1633,6 @@ function escapeHtml(str){
   div.textContent = str == null ? '' : str;
   return div.innerHTML;
 }
-
-// eigenaar: nieuwe bestellingen automatisch binnenhalen
-setInterval(async ()=>{
-  if(appMode !== 'owner' || !storeId || document.hidden) return;
-  const before = orders.length;
-  try{ await loadOrders(); }catch(e){ return; }
-  if(orders.length !== before){
-    renderOrdersList();
-    if(orders.length > before) showToast('Nieuwe bestelling binnen!');
-  }
-}, 30000);
 
 init();
 </script>
